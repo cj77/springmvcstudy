@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd 
+       http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+          http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+	
+	<!-- 加载配置属性文件 -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:demo.properties" />
+	
+    <!-- 配置扫描的包 -->
+    <context:component-scan base-package="com.springdemo.*"/>
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+	
+    <!-- 注册HandlerMapper、HandlerAdapter两个映射类 -->
+    <mvc:annotation-driven />
+
+    <!-- 访问静态资源 -->
+    <mvc:default-servlet-handler />
+    
+    <!-- 视图解析器 -->
+    <bean
+        class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/view/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+    
+    
+    <!--读取外部的属性文件配置参数 -->
+    <context:property-placeholder location="classpath:ds.properties" />
+    <bean id="BasicDataSource" class="org.apache.commons.dbcp2.BasicDataSource">       
+        <!-- 数据库基本信息配置 -->        
+        <property name="url" value="${mysql.url}"/>      
+        <property name="driverClassName" value="${mysql.driver}"/>        
+        <property name="username" value="${mysql.username}"/>        
+        <property name="password" value="${mysql.password}"/>  
+              
+        <property name="maxIdle" value="${dbcp2.maxIdle}"/>        
+        <property name="minIdle" value="${dbcp2.minIdle}"/>        
+        <property name="initialSize" value="${dbcp2.initialSize}"/>        
+        <property name="timeBetweenEvictionRunsMillis" 
+                                        value="${dbcp2.timeBetweenEvictionRunsMillis}"/> 
+       
+        <property name="poolPreparedStatements" value="${dbcp2.poolPreparedStatements}"/>        
+        <property name="maxOpenPreparedStatements" value="${dbcp2.maxOpenPreparedStatements}"/>        
+        <property name="removeAbandonedTimeout" value="${dbcp2.removeAbandonedTimeout}"/>
+
+        <!-- 申请连接时执行validationQuery检测连接是否有效，配置为true会降低性能 -->        
+        <property name="testOnBorrow" value="${dbcp2.testOnBorrow}"/>
+
+        <!-- 归还连接时执行validationQuery检测连接是否有效，配置为true会降低性能  -->        
+        <property name="testOnReturn" value="${dbcp2.testOnReturn}"/>
+
+        <!-- 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于
+             timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。  -->               
+        <property name="testWhileIdle" value="${dbcp2.testWhileIdle}"/>
+
+        <!-- 用来检测连接是否有效的sql，要求是一个查询语句,如果validationQuery为
+             null，testOnBorrow、testOnReturn、testWhileIdle都不起其作用。 -->            
+        <property name="validationQuery" value="${dbcp2.validationQuery}"/>    
+    </bean>
+</beans>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--读取外部的属性文件配置参数 -->
+    <context:property-placeholder location="classpath:demo.properties" />
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">       
+        <!-- 数据库基本信息配置 -->        
+        <property name="url" value="${mysql.url}"/>      
+        <property name="driverClassName" value="${mysql.driver}"/>        
+        <property name="username" value="${mysql.username}"/>        
+        <property name="password" value="${mysql.password}"/>  
+              
+        <property name="maxIdle" value="${dbcp2.maxIdle}"/>        
+        <property name="minIdle" value="${dbcp2.minIdle}"/>        
+        <property name="initialSize" value="${dbcp2.initialSize}"/>        
+        <property name="timeBetweenEvictionRunsMillis" 
+                                        value="${dbcp2.timeBetweenEvictionRunsMillis}"/> 
+       
+        <property name="poolPreparedStatements" value="${dbcp2.poolPreparedStatements}"/>        
+        <property name="maxOpenPreparedStatements" value="${dbcp2.maxOpenPreparedStatements}"/>        
+        <property name="removeAbandonedTimeout" value="${dbcp2.removeAbandonedTimeout}"/>
+
+        <!-- 申请连接时执行validationQuery检测连接是否有效，配置为true会降低性能 -->        
+        <property name="testOnBorrow" value="${dbcp2.testOnBorrow}"/>
+
+        <!-- 归还连接时执行validationQuery检测连接是否有效，配置为true会降低性能  -->        
+        <property name="testOnReturn" value="${dbcp2.testOnReturn}"/>
+
+        <!-- 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于
+             timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。  -->               
+        <property name="testWhileIdle" value="${dbcp2.testWhileIdle}"/>
+
+        <!-- 用来检测连接是否有效的sql，要求是一个查询语句,如果validationQuery为
+             null，testOnBorrow、testOnReturn、testWhileIdle都不起其作用。 -->            
+        <property name="validationQuery" value="${dbcp2.validationQuery}"/>    
+    </bean>
+    
+    <!-- 3.配置SqlSessionFactory对象 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 配置MyBaties全局配置文件:mybatis-config.xml -->
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+        <!-- 扫描sql配置文件:mapper需要的xml文件 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml" />
+    </bean>
+
+    <!-- 4.配置扫描Dao接口包，动态实现Dao接口，注入到spring容器中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 注入sqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+        <!-- 给出需要扫描Dao接口包 -->
+        <property name="basePackage" value="com.springdemo.eform" />
+        <property name="annotationClass" value="com.springdemo.eform.Dao"/>
+    </bean>
+</beans>
